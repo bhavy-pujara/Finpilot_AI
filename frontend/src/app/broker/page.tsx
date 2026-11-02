@@ -51,6 +51,17 @@ export default function BrokerPage() {
     }
   };
 
+  const handleDisconnect = async (brokerName: string) => {
+    setConnectSuccess(null);
+    try {
+      await api.disconnectBroker(brokerName);
+      setConnectSuccess(`Disconnected from ${brokerName}.`);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || "Disconnect failed.");
+    }
+  };
+
   const handleGetQuote = async () => {
     try {
       const q = await api.getBrokerSimulatedQuote(quoteBroker, quoteSymbol, "BUY", quoteQty);
@@ -119,12 +130,21 @@ export default function BrokerPage() {
             <span className={`text-[11px] ${isConnected("ZERODHA") ? "text-emerald-400" : "text-slate-500"}`}>
               {isConnected("ZERODHA") ? "● Mock Connected" : "○ Disconnected"}
             </span>
-            <button
-              onClick={() => handleConnect("ZERODHA")}
-              className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
-            >
-              Simulate OAuth
-            </button>
+            {isConnected("ZERODHA") ? (
+              <button
+                onClick={() => handleDisconnect("ZERODHA")}
+                className="px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-medium transition-colors"
+              >
+                Disconnect
+              </button>
+            ) : (
+              <button
+                onClick={() => handleConnect("ZERODHA")}
+                className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
+              >
+                Simulate OAuth
+              </button>
+            )}
           </div>
         </div>
 
@@ -141,12 +161,21 @@ export default function BrokerPage() {
             <span className={`text-[11px] ${isConnected("ANGEL_ONE") ? "text-emerald-400" : "text-slate-500"}`}>
               {isConnected("ANGEL_ONE") ? "● Mock Connected" : "○ Disconnected"}
             </span>
-            <button
-              onClick={() => handleConnect("ANGEL_ONE")}
-              className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
-            >
-              Simulate OAuth
-            </button>
+            {isConnected("ANGEL_ONE") ? (
+              <button
+                onClick={() => handleDisconnect("ANGEL_ONE")}
+                className="px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-medium transition-colors"
+              >
+                Disconnect
+              </button>
+            ) : (
+              <button
+                onClick={() => handleConnect("ANGEL_ONE")}
+                className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
+              >
+                Simulate OAuth
+              </button>
+            )}
           </div>
         </div>
 
@@ -163,12 +192,21 @@ export default function BrokerPage() {
             <span className={`text-[11px] ${isConnected("ALPACA") ? "text-emerald-400" : "text-slate-500"}`}>
               {isConnected("ALPACA") ? "● Mock Connected" : "○ Disconnected"}
             </span>
-            <button
-              onClick={() => handleConnect("ALPACA")}
-              className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
-            >
-              Simulate OAuth
-            </button>
+            {isConnected("ALPACA") ? (
+              <button
+                onClick={() => handleDisconnect("ALPACA")}
+                className="px-3 py-1.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-medium transition-colors"
+              >
+                Disconnect
+              </button>
+            ) : (
+              <button
+                onClick={() => handleConnect("ALPACA")}
+                className="px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors"
+              >
+                Simulate OAuth
+              </button>
+            )}
           </div>
         </div>
       </div>

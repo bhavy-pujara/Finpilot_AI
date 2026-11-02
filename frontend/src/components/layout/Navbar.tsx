@@ -19,6 +19,7 @@ import {
   FileText
 } from "lucide-react";
 import { getAuthToken, removeAuthToken } from "@/lib/api";
+import ThemeToggle from "@/components/common/ThemeToggle";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -103,6 +104,7 @@ export default function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center space-x-3">
+            <ThemeToggle />
             <Link
               href="/notifications"
               className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors relative"

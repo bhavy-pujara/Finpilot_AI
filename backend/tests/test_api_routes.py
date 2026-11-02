@@ -7,6 +7,16 @@ def client():
     with TestClient(app) as c:
         yield c
 
+@pytest.fixture(scope="module")
+def auth_headers(client):
+    login_res = client.post("/api/v1/auth/login", json={
+        "email": "trader@finpilot.ai",
+        "password": "Trader123!"
+    })
+    assert login_res.status_code == 200, f"Login failed: {login_res.text}"
+    token = login_res.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
 def test_health_check_endpoint(client):
     res = client.get("/health")
     assert res.status_code == 200
@@ -17,8 +27,8 @@ def test_root_endpoint(client):
     assert res.status_code == 200
     assert "FinPilot" in res.json()["app"]
 
-def test_dashboard_overview_endpoint(client):
-    res = client.get("/api/v1/dashboard/overview")
+def test_dashboard_overview_endpoint(client, auth_headers):
+    res = client.get("/api/v1/dashboard/overview", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert "indian_indices" in data
@@ -42,7 +52,7 @@ def test_instrument_detail_with_indicators(client):
     assert "rsi_14" in data["indicators"]
     assert "candles" in data
 
-def test_trade_planner_calculate_api(client):
+def test_trade_planner_calculate_api(client, auth_headers):
     payload = {
         "instrument_id": 1,
         "side": "BUY",
@@ -52,23 +62,23 @@ def test_trade_planner_calculate_api(client):
         "total_capital": 1000000.0,
         "risk_pct": 1.0
     }
-    res = client.post("/api/v1/trade-planner/calculate", json=payload)
+    res = client.post("/api/v1/trade-planner/calculate", json=payload, headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert data["is_valid"] is True
     assert data["position_size"] == 100
     assert data["risk_reward_ratio"] == 2.0
 
-def test_risk_metrics_endpoint(client):
-    res = client.get("/api/v1/risk/metrics")
+def test_risk_metrics_endpoint(client, auth_headers):
+    res = client.get("/api/v1/risk/metrics", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert "var_95_daily" in data
     assert "max_drawdown_pct" in data
     assert "sharpe_ratio" in data
 
-def test_portfolio_summary_endpoint(client):
-    res = client.get("/api/v1/portfolio/summary")
+def test_portfolio_summary_endpoint(client, auth_headers):
+    res = client.get("/api/v1/portfolio/summary", headers=auth_headers)
     assert res.status_code == 200
     data = res.json()
     assert "total_equity" in data

@@ -15,6 +15,68 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Light Mode Overrides */
+html.light {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+}
+
+html.light body {
+  background-color: #F8FAFC !important;
+  color: #0F172A !important;
+}
+
+html.light .bg-\[\#0B0F19\] {
+  background-color: #FFFFFF !important;
+}
+
+html.light .bg-\[\#080B12\] {
+  background-color: #F8FAFC !important;
+}
+
+html.light .bg-\[\#0F172A\] {
+  background-color: #F1F5F9 !important;
+}
+
+html.light .bg-slate-950 {
+  background-color: #F8FAFC !important;
+}
+
+html.light .bg-slate-900 {
+  background-color: #FFFFFF !important;
+}
+
+html.light .border-slate-800,
+html.light .border-slate-850,
+html.light .border-slate-700 {
+  border-color: #E2E8F0 !important;
+}
+
+html.light .text-white {
+  color: #0F172A !important;
+}
+
+html.light .text-slate-100 {
+  color: #1E293B !important;
+}
+
+html.light .text-slate-200 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-300 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748B !important;
+}
+
+html.light header {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #E2E8F0 !important;
+}
+
 /* Custom scrollbar for institutional density */
 ::-webkit-scrollbar {
   width: 6px;

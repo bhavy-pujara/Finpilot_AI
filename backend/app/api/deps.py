@@ -26,13 +26,9 @@ def get_current_user(
     token: Optional[str] = Depends(oauth2_scheme)
 ) -> User:
     if not token:
-        # Fallback to the default seeded demo user for frictionless local preview if unauthenticated
-        demo_user = db.query(User).filter(User.email == settings.DEMO_USER_EMAIL).first()
-        if demo_user:
-            return demo_user
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required. Please log in.",
+            detail="Authentication credentials were not provided. Please log in.",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

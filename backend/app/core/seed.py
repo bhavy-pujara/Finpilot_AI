@@ -34,73 +34,74 @@ def seed_database(db: Session) -> None:
     mock_provider = MockMarketDataProvider()
 
     # 2. Instruments, Historical Market Data & Financial Metrics
-    if db.query(Instrument).count() == 0:
-        for sym, item in INSTRUMENT_CATALOG.items():
-            ex_id = exchange_map.get(item["exchange"], 1)
-            inst = Instrument(
-                exchange_id=ex_id,
-                symbol=sym,
-                name=item["name"],
-                sector=item["sector"],
-                asset_class="ETF" if "ETF" in item["sector"] else "EQUITY",
-                currency=item["currency"],
-                lot_size=item["lot_size"],
-                tick_size=item["tick_size"],
-                current_price=item["base_price"],
-                change_pct=1.24 if hash(sym) % 2 == 0 else -0.85,
-                day_high=round(item["base_price"] * 1.015, 2),
-                day_low=round(item["base_price"] * 0.985, 2),
-                volume_24h=2500000 + abs(hash(sym)) % 4000000,
-                is_active=True
-            )
-            db.add(inst)
-            db.commit()
-            db.refresh(inst)
+    for sym, item in INSTRUMENT_CATALOG.items():
+        if db.query(Instrument).filter(Instrument.symbol == sym).first():
+            continue
+        ex_id = exchange_map.get(item["exchange"], 1)
+        inst = Instrument(
+            exchange_id=ex_id,
+            symbol=sym,
+            name=item["name"],
+            sector=item["sector"],
+            asset_class="ETF" if "ETF" in item["sector"] else "EQUITY",
+            currency=item["currency"],
+            lot_size=item["lot_size"],
+            tick_size=item["tick_size"],
+            current_price=item["base_price"],
+            change_pct=1.24 if hash(sym) % 2 == 0 else -0.85,
+            day_high=round(item["base_price"] * 1.015, 2),
+            day_low=round(item["base_price"] * 0.985, 2),
+            volume_24h=2500000 + abs(hash(sym)) % 4000000,
+            is_active=True
+        )
+        db.add(inst)
+        db.commit()
+        db.refresh(inst)
 
-            # Add Financial Metrics
-            metrics = mock_provider.get_financial_metrics(sym)
-            db.add(FinancialMetric(
+        # Add Financial Metrics
+        metrics = mock_provider.get_financial_metrics(sym)
+        db.add(FinancialMetric(
+            instrument_id=inst.id,
+            metric_date=datetime.now(timezone.utc),
+            market_cap=metrics["market_cap"],
+            pe_ratio=metrics["pe_ratio"],
+            pb_ratio=metrics["pb_ratio"],
+            eps=metrics["eps"],
+            roe=metrics["roe"],
+            roce=metrics["roce"],
+            debt_to_equity=metrics["debt_to_equity"],
+            dividend_yield=metrics["dividend_yield"],
+            beta=metrics["beta"],
+            week_52_high=metrics["week_52_high"],
+            week_52_low=metrics["week_52_low"]
+        ))
+
+        # Add 60 days of historical candles
+        candles = mock_provider.get_historical_candles(sym, limit=60)
+        for c in candles:
+            db.add(MarketData(
                 instrument_id=inst.id,
-                metric_date=datetime.now(timezone.utc),
-                market_cap=metrics["market_cap"],
-                pe_ratio=metrics["pe_ratio"],
-                pb_ratio=metrics["pb_ratio"],
-                eps=metrics["eps"],
-                roe=metrics["roe"],
-                roce=metrics["roce"],
-                debt_to_equity=metrics["debt_to_equity"],
-                dividend_yield=metrics["dividend_yield"],
-                beta=metrics["beta"],
-                week_52_high=metrics["week_52_high"],
-                week_52_low=metrics["week_52_low"]
+                timestamp=datetime.fromisoformat(c["timestamp"]),
+                open=c["open"],
+                high=c["high"],
+                low=c["low"],
+                close=c["close"],
+                volume=c["volume"],
+                vwap=c["vwap"],
+                interval="1d",
+                data_source="mock",
+                is_delayed=True
             ))
 
-            # Add 60 days of historical candles
-            candles = mock_provider.get_historical_candles(sym, limit=60)
-            for c in candles:
-                db.add(MarketData(
-                    instrument_id=inst.id,
-                    timestamp=datetime.fromisoformat(c["timestamp"]),
-                    open=c["open"],
-                    high=c["high"],
-                    low=c["low"],
-                    close=c["close"],
-                    volume=c["volume"],
-                    vwap=c["vwap"],
-                    interval="1d",
-                    data_source="mock",
-                    is_delayed=True
-                ))
-
-            # Add a verified news summary
-            db.add(NewsArticle(
-                instrument_id=inst.id,
-                title=f"{item['name']} announces quarterly performance review and strategic guidance",
-                summary=f"Institutional analysts review operational efficiency and sector demand drivers for {sym}.",
-                source="FinPilot Financial Intelligence Feed",
-                sentiment_score=0.35,
-                published_at=datetime.now(timezone.utc) - timedelta(hours=abs(hash(sym)) % 48)
-            ))
+        # Add a verified news summary
+        db.add(NewsArticle(
+            instrument_id=inst.id,
+            title=f"{item['name']} announces quarterly performance review and strategic guidance",
+            summary=f"Institutional analysts review operational efficiency and sector demand drivers for {sym}.",
+            source="FinPilot Financial Intelligence Feed",
+            sentiment_score=0.35,
+            published_at=datetime.now(timezone.utc) - timedelta(hours=abs(hash(sym)) % 48)
+        ))
 
         db.commit()
 
@@ -303,3 +304,13 @@ def seed_database(db: Session) -> None:
         ))
 
         db.commit()
+
+
+if __name__ == "__main__":
+    from app.core.database import SessionLocal
+    db = SessionLocal()
+    try:
+        seed_database(db)
+        print("Database seeded successfully.")
+    finally:
+        db.close()

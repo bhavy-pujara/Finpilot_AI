@@ -135,6 +135,7 @@ export const api = {
   // Broker Architecture
   getBrokerConnections: () => apiRequest("/broker/connections"),
   connectBroker: (data: any) => apiRequest("/broker/connect", { method: "POST", body: JSON.stringify(data) }),
+  disconnectBroker: (brokerName: string) => apiRequest(`/broker/disconnect/${brokerName}`, { method: "DELETE" }),
   getBrokerSimulatedQuote: (broker: string, symbol: string, side: string = "BUY", quantity: number = 10) =>
     apiRequest(`/broker/quote-simulated?broker=${broker}&symbol=${symbol}&side=${side}&quantity=${quantity}`),
 

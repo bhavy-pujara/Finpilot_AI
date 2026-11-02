@@ -59,8 +59,8 @@ Upon initial startup, the backend automatically seeds the database with the foll
 
 | Role | Email | Password | Permissions |
 | :--- | :--- | :--- | :--- |
-| **System Admin** | `admin@finpilot.ai` | `AdminPass123!` | System health, user management, audit logs, AI cost metrics |
-| **Demo Trader** | `trader@finpilot.ai` | `TraderPass123!` | Full access to paper trading, portfolio, AI copilot, journals |
+| **System Admin** | `admin@finpilot.ai` | `Admin123!` | System health, user management, audit logs, AI cost metrics |
+| **Demo Trader** | `trader@finpilot.ai` | `Trader123!` | Full access to paper trading, portfolio, AI copilot, journals |
 
 ---
 
